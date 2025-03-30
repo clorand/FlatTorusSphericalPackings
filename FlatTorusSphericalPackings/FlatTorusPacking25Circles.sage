@@ -25,7 +25,38 @@ c7^2 + s7^2 - 1,  # Ensures (c1, s1) is on the unit circle
 c12^2 + s12^2 - 1
 ]
 
-print("Starting Computations :", Sys2)
+# Numerically check equations
+# Provided numerical values
+l_val   = 0.2051955299348816
+a_vals  = [-0.15796008667982392, 0.06346529113687596, -1.131552999087326,
+0.42079842968300063, -1.1566363660031738, 0.34193922432579843,
+1.021357925042764, -0.06570944726252272, -0.3772888980405106,
+-0.36074314712616484, 0.2399067209390549, 0.30830197876798765,
+0.9683992777695778]
+
+# Compute cosine and sine values numerically
+c = [cos(a) for a in a_vals]
+s = [sin(a) for a in a_vals]
+
+# Assign numerical values to polynomial variables
+subs = {
+    l: l_val,
+    c1: c[1], s1: s[1],
+    c3: c[3], s3: s[3],
+    c4: c[4], s4: s[4],
+    c6: c[6], s6: s[6],
+    c7: c[7], s7: s[7],
+    c12: c[12], s12: s[12]
+}
+
+# Numerically evaluate the system of equations
+numerical_results = [eq.subs(subs).n() for eq in Sys2]
+
+for i, res in enumerate(numerical_results):
+    print(f"Equation {i}: {res}")
+
+
+print("Eliminate trigonometric variables :", Sys2)
 # Generate the ideal for the system of equations
 J1 = R.ideal(Sys2)
 
@@ -39,82 +70,6 @@ f = E.gen(0).change_ring( QuadraticField(3) )
 P = factor(f)[0][0]
 print(P)
 
-
-# Convert P to a univariate polynomial ring over Q(sqrt(3))
-K = QuadraticField(3, 'a')  # Define Q(sqrt(3)) with generator 'a'
-a = K.gen()
-R.<l> = PolynomialRing(K)  # Define a univariate polynomial ring in x over Q(sqrt(3))
-P_univar = R(P)  # Convert the multivariate polynomial to a univariate polynomial
-
-# Convert P to the complex field (CC) to find numerical roots
-P_complex = P_univar.change_ring(CC)
-
-# Find the roots numerically
-numerical_roots = P_complex.roots(multiplicities=False)
-
-# Display each root
-print("Numerical roots of the polynomial P:")
-for i, root in enumerate(numerical_roots, 1):
-    print(f"Root {i}: {root}")
-    
-
-    
-# Initialize R_part and Q_part as zero polynomials
-R_part = R(0)
-Q_part = R(0)
-
-# Separate P into R and Q parts
-for i, coeff in enumerate(P_univar.coefficients(sparse=False)):
-    # Separate parts in terms of the number field generator `a`
-    # constant term (part without `a`)
-    R_term = coeff.trace() / 2  # Real part or "constant" part
-    # term involving `a`
-    Q_term = (coeff - R_term) / a  # Imaginary part in terms of `a`
-    
-    # Accumulate terms in R_part and Q_part
-    R_part += R_term * l^i
-    Q_part += Q_term * l^i
-
-print("R part of P:", R_part)
-print("Q part of P:", Q_part)
-
-# Construct the norm polynomial: P * P^* = (R + a*Q) * (R - a*Q) = R^2 - 3*Q^2
-P_integer = (R_part^2 - 3 * Q_part^2)  # Norm polynomial over Z
-
-
-print("Norm polynomial over Z:")
-print(P_integer)
-
-'''
-prec = 200  # Set a high precision level (200 bits should be enough)
-CC = ComplexField(prec)
-
-# Convert P to the complex field (CC) to find numerical roots
-P_complex = P_integer.change_ring(CC)
-
-# Find the roots numerically
-numerical_roots = P_complex.roots(multiplicities=False)
-
-# Display each root
-print("Numerical roots of the polynomial P:")
-for i, root in enumerate(numerical_roots, 1):
- print(f"Root {i}: {root}")
-    
-# Enumerate coefficients with powers
-for power, coeff in enumerate((8*75497472*2477483004346470106833095944308480723151456937914680261903046720484565350094997173021589470410965115954169577432650033*P_integer).coefficients(sparse=False)):
- if coeff!=0:
-  print(f"Coefficient of x^{power}: {coeff}") 
- 
-P_complex = 8*75497472*2477483004346470106833095944308480723151456937914680261903046720484565350094997173021589470410965115954169577432650033*P_integer.change_ring(CC)
-# Find the roots numerically
-numerical_roots = P_complex.roots(multiplicities=False)
-
-# Display each root
-print("Numerical roots of the polynomial P:")
-for i, root in enumerate(numerical_roots, 1):
- print(f"Root {i}: {root}")
-
- '''
 
         
 t1 = stime()
